@@ -37,7 +37,7 @@ export const signup = async (req, res) => {
                 _id:newUser._id,
                 fullName: newUser.fullName,
                 email: newUser.email,
-                profilepic: newUser.profilepic,
+                profilePic: newUser.profilePic,
             });
         } else{
             res.status(400).json({ message: "Invalid user data" });
@@ -68,7 +68,7 @@ export const login = async (req, res) => {
             _id:user._id,
             fullName: user.fullName,
             email: user.email,
-            profilepic: user.profilepic,
+            profilePic: user.profilePic,
 
         });
     } catch (error) {
@@ -88,15 +88,15 @@ export const logout = (req, res) => {
 
 export const updateProfile = async (req,res) => {
     try {
-        const {profilepic} = req.body;
+        const {profilePic} = req.body;
         const userId = req.user._id;
 
-        if(!profilepic){
+        if(!profilePic){
             return res.status(400).json({ message: "Profile Pic is required" });
         }
 
-        const uploadResponse = await cloudinary.uploader.upload(profilepic);
-        const updatedUser = await User.findByIdAndUpdate(userId, {profilepic:uploadResponse.secure_url}, {new:true});
+        const uploadResponse = await cloudinary.uploader.upload(profilePic);
+        const updatedUser = await User.findByIdAndUpdate(userId, {profilePic:uploadResponse.secure_url}, {new:true});
         
         res.status(200).json(updatedUser);
 
