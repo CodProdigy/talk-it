@@ -17,10 +17,16 @@ router.post("/", protectRoute, createGroup);
 // ✅ Get all groups for the logged-in user
 router.get("/", protectRoute, getGroups);
 
-// ✅ Use clear prefixes to avoid param conflicts
-router.get("/id/:groupId", protectRoute, getGroupById);
-router.put("/id/:groupId", protectRoute, updateGroup);
-router.get("/id/:groupId/messages", protectRoute, getGroupMessages);
-router.post("/id/:groupId/send", protectRoute, sendGroupMessage);
+// ✅ Get single group by ID
+router.get("/:groupId", protectRoute, getGroupById);
+
+// ✅ Update group
+router.put("/:groupId", protectRoute, updateGroup);
+
+// ✅ Get messages for group
+router.get("/:groupId/messages", protectRoute, getGroupMessages);
+
+// ✅ Send message to group
+router.post("/:groupId/send", protectRoute, sendGroupMessage);
 
 export default router;
