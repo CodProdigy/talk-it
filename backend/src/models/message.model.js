@@ -10,14 +10,14 @@ const messageSchema = new mongoose.Schema(
     receiverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      default: null, // 1-1 only
     },
-    text: {
+    roomId: {
       type: String,
+      default: null, // group room id
     },
-    image: {
-      type: String,
-    },
+    text: { type: String },
+    image: { type: String },
   },
   { timestamps: true }
 );

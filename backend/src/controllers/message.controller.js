@@ -1,7 +1,7 @@
-import cloudinary from "../lib/cloudinary.js";
-import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import Message from "../models/message.model.js";
+import cloudinary from "../lib/cloudinary.js";
+import { getReceiverSocketId, getIO } from "../lib/socket.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -12,8 +12,8 @@ export const getUsersForSidebar = async (req, res) => {
 
     res.status(200).json(filteredUsers);
   } catch (error) {
-    console.log("Error in getUsersForSidebar: ", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error in getUsersForSidebar: ", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -31,12 +31,12 @@ export const getMessages = async (req, res) => {
 
     res.status(200).json(messages);
   } catch (error) {
-    console.log("Error in getMessages controller: ", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error in getMessages: ", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const sendMessages = async (req, res) => {
+export const sendMessage = async (req, res) => {
   try {
     const { text, image } = req.body;
     const { id: receiverId } = req.params;
@@ -44,8 +44,8 @@ export const sendMessages = async (req, res) => {
 
     let imageUrl;
     if (image) {
-      const uploadResponse = await cloudinary.uploader.upload(image);
-      imageUrl = uploadResponse.secure_url;
+      const uploadRes = await cloudinary.uploader.upload(image);
+      imageUrl = uploadRes.secure_url;
     }
 
     const newMessage = new Message({
@@ -59,12 +59,93 @@ export const sendMessages = async (req, res) => {
 
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
+      getIO().to(receiverSocketId).emit("newMessage", newMessage);
     }
 
     res.status(201).json(newMessage);
   } catch (error) {
-    console.log("Error in sendMessages controller: ", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error in sendMessage: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const sendGroupMessage = async (req, res) => {
+  try {
+    const { text, image, roomId } = req.body;
+    const senderId = req.user._id;
+
+    let imageUrl;
+    if (image) {
+      const uploadRes = await cloudinary.uploader.upload(image);
+      imageUrl = uploadRes.secure_url;
+    }
+
+    const newMessage = new Message({
+      senderId,
+      roomId,
+      text,
+      image: imageUrl,
+    });
+
+    await newMessage.save();
+
+    getIO().to(roomId).emit("groupMessage", newMessage);
+
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error("Error in sendGroupMessage: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getGroupMessages = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+
+    const messages = await Message.find({ roomId });
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.error("Error in getGroupMessages: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    if (message.senderId.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ error: "You can delete only your own messages" });
+    }
+
+    await message.deleteOne();
+
+    if (message.receiverId) {
+      const receiverSocketId = getReceiverSocketId(
+        message.receiverId.toString()
+      );
+      if (receiverSocketId) {
+        getIO().to(receiverSocketId).emit("messageDeleted", { messageId });
+      }
+    }
+
+    if (message.roomId) {
+      getIO().to(message.roomId).emit("messageDeleted", { messageId });
+    }
+
+    res.status(200).json({ message: "Message deleted", messageId });
+  } catch (error) {
+    console.error("Error in deleteMessage: ", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
