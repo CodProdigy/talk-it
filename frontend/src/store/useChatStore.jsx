@@ -51,7 +51,6 @@ export const useChatStore = create((set, get) => ({
       if (selectedUser) {
         res = await axiosInstance.get(`/messages/${selectedUser._id}`);
       } else {
-        // ✅ FIXED PATH
         res = await axiosInstance.get(
           `/groups/id/${selectedGroup._id}/messages`
         );
@@ -78,7 +77,6 @@ export const useChatStore = create((set, get) => ({
           data
         );
       } else {
-        // ✅ FIXED PATH
         res = await axiosInstance.post(
           `/groups/id/${selectedGroup._id}/send`,
           data

@@ -18,15 +18,15 @@ router.post("/", protectRoute, createGroup);
 router.get("/", protectRoute, getGroups);
 
 // ✅ Get single group by ID
-router.get("/:groupId", protectRoute, getGroupById);
+router.get("/id/:groupId", protectRoute, getGroupById);
 
 // ✅ Update group
-router.put("/:groupId", protectRoute, updateGroup);
+router.put("/id/:groupId", protectRoute, updateGroup);
 
 // ✅ Get messages for group
-router.get("/:groupId/messages", protectRoute, getGroupMessages);
+router.get("/id/:groupId/messages", protectRoute, getGroupMessages);
 
 // ✅ Send message to group
-router.post("/:groupId/send", protectRoute, sendGroupMessage);
+router.post("/id/:groupId/send", protectRoute, sendGroupMessage);
 
 export default router;
