@@ -11,7 +11,10 @@ import {
 
 const router = express.Router();
 
+// ✅ Create a new group
 router.post("/", protectRoute, createGroup);
+
+// ✅ Get all groups for the logged-in user
 router.get("/", protectRoute, getGroups);
 
 // ✅ Use clear prefixes to avoid param conflicts
