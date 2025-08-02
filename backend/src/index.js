@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import http from "http";
-
 import path from "path";
 
 import { connectDB } from "./lib/db.js";
@@ -31,6 +30,12 @@ app.use(
   })
 );
 
+// ✅ ✅ ✅ LOGGING MIDDLEWARE — add this 👇
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
@@ -46,6 +51,11 @@ if (process.env.NODE_ENV === "production") {
 
 // ✅ Socket.io
 initSocket(server);
+
+// ✅ Fallback for 404 — also helps catch stray calls
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
 
 // ✅ Start server
 server.listen(PORT, () => {
