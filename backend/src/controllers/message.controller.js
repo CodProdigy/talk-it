@@ -69,48 +69,6 @@ export const sendMessage = async (req, res) => {
   }
 };
 
-export const sendGroupMessage = async (req, res) => {
-  try {
-    const { text, image, roomId } = req.body;
-    const senderId = req.user._id;
-
-    let imageUrl;
-    if (image) {
-      const uploadRes = await cloudinary.uploader.upload(image);
-      imageUrl = uploadRes.secure_url;
-    }
-
-    const newMessage = new Message({
-      senderId,
-      roomId,
-      text,
-      image: imageUrl,
-    });
-
-    await newMessage.save();
-
-    getIO().to(roomId).emit("groupMessage", newMessage);
-
-    res.status(201).json(newMessage);
-  } catch (error) {
-    console.error("Error in sendGroupMessage: ", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-export const getGroupMessages = async (req, res) => {
-  try {
-    const { roomId } = req.params;
-
-    const messages = await Message.find({ roomId });
-
-    res.status(200).json(messages);
-  } catch (error) {
-    console.error("Error in getGroupMessages: ", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
 export const deleteMessage = async (req, res) => {
   try {
     const { messageId } = req.params;
