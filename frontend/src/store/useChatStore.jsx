@@ -40,7 +40,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // --- MESSAGES ---
   getMessages: async () => {
     const { selectedUser, selectedGroup } = get();
     if (!selectedUser && !selectedGroup) return;
@@ -52,7 +51,9 @@ export const useChatStore = create((set, get) => ({
       if (selectedUser) {
         res = await axiosInstance.get(`/messages/${selectedUser._id}`);
       } else {
-        res = await axiosInstance.get(`/messages/group/${selectedGroup._id}`);
+        res = await axiosInstance.get(
+          `/groups/id/${selectedGroup._id}/messages`
+        );
       }
       set({ messages: res.data });
     } catch (err) {
@@ -76,10 +77,10 @@ export const useChatStore = create((set, get) => ({
           data
         );
       } else {
-        res = await axiosInstance.post(`/messages/group/send`, {
-          ...data,
-          roomId: selectedGroup._id,
-        });
+        res = await axiosInstance.post(
+          `/groups/id/${selectedGroup._id}/send`,
+          data
+        );
       }
       set({ messages: [...messages, res.data] });
     } catch (err) {

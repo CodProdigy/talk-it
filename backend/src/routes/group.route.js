@@ -13,9 +13,11 @@ const router = express.Router();
 
 router.post("/", protectRoute, createGroup);
 router.get("/", protectRoute, getGroups);
-router.get("/:id", protectRoute, getGroupById);
-router.put("/:id", protectRoute, updateGroup);
-router.get("/:id/messages", protectRoute, getGroupMessages);
-router.post("/send/:id", protectRoute, sendGroupMessage);
+
+// ✅ Use clear prefixes to avoid param conflicts
+router.get("/id/:groupId", protectRoute, getGroupById);
+router.put("/id/:groupId", protectRoute, updateGroup);
+router.get("/id/:groupId/messages", protectRoute, getGroupMessages);
+router.post("/id/:groupId/send", protectRoute, sendGroupMessage);
 
 export default router;

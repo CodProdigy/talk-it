@@ -65,7 +65,7 @@ export const getGroups = async (req, res) => {
 // ✅ Get single group by ID
 export const getGroupById = async (req, res) => {
   try {
-    const groupId = req.params.id;
+    const groupId = req.params.groupId;
 
     const group = await Group.findById(groupId)
       .populate("members", "-password")
@@ -85,7 +85,7 @@ export const getGroupById = async (req, res) => {
 // ✅ Get messages for a group
 export const getGroupMessages = async (req, res) => {
   try {
-    const groupId = req.params.id;
+    const groupId = req.params.groupId;
 
     const messages = await Message.find({ roomId: groupId })
       .populate("senderId", "-password")
@@ -101,7 +101,7 @@ export const getGroupMessages = async (req, res) => {
 // ✅ Send message to a group
 export const sendGroupMessage = async (req, res) => {
   try {
-    const groupId = req.params.id;
+    const groupId = req.params.groupId;
     const { text, image } = req.body;
 
     const newMessage = new Message({
@@ -127,7 +127,7 @@ export const sendGroupMessage = async (req, res) => {
 // ✅ Update group (name, icon, members)
 export const updateGroup = async (req, res) => {
   try {
-    const groupId = req.params.id;
+    const groupId = req.params.groupId;
     const { name, icon, members } = req.body;
     const userId = req.user._id;
 
