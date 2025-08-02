@@ -51,9 +51,7 @@ export const useChatStore = create((set, get) => ({
       if (selectedUser) {
         res = await axiosInstance.get(`/messages/${selectedUser._id}`);
       } else {
-        res = await axiosInstance.get(
-          `/groups/id/${selectedGroup._id}/messages`
-        );
+        res = await axiosInstance.get(`/groups/${selectedGroup._id}/messages`);
       }
       set({ messages: res.data });
     } catch (err) {
@@ -78,7 +76,7 @@ export const useChatStore = create((set, get) => ({
         );
       } else {
         res = await axiosInstance.post(
-          `/groups/id/${selectedGroup._id}/send`,
+          `/groups/${selectedGroup._id}/send`,
           data
         );
       }
