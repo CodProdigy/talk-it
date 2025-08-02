@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import http from "http";
 
+import path from "path";
+
 import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
@@ -17,6 +19,7 @@ const app = express();
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 5002;
+const __dirname = path.resolve();
 
 // ✅ Middlewares
 app.use(express.json());
@@ -32,6 +35,14 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/groups", groupRoutes);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
 
 // ✅ Socket.io
 initSocket(server);
