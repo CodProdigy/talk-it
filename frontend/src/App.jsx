@@ -4,6 +4,7 @@ import SignUpPage from './pages/SignUpPage';
 import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
+import CreateGroup from "./components/CreateGroup";
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
@@ -14,9 +15,9 @@ import { Toaster } from 'react-hot-toast';
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
-  const {theme} = useThemeStore();
+  const { theme } = useThemeStore();
 
-  console.log({ onlineUsers })
+  console.log({ onlineUsers });
 
   useEffect(() => {
     checkAuth();
@@ -39,6 +40,8 @@ const App = () => {
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+        <Route path="/create-group" element={authUser ? <CreateGroup /> : <Navigate to="/login" />} />
+        <Route path="/groups/:id/edit" element={<CreateGroup />} />
       </Routes>
 
       <Toaster />

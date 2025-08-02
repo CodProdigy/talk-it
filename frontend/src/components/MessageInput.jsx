@@ -7,15 +7,19 @@ const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+
+  const {
+    sendMessage,
+    selectedUser,
+    selectedGroup,
+  } = useChatStore();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (!file.type.startsWith("image/")) {
+    if (!file?.type?.startsWith("image/")) {
       toast.error("Please select an image file");
       return;
     }
-
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result);
@@ -32,19 +36,15 @@ const MessageInput = () => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
 
-    try {
-      await sendMessage({
-        text: text.trim(),
-        image: imagePreview,
-      });
-
-      // Clear form
-      setText("");
-      setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (error) {
-      console.error("Failed to send message:", error);
+    if (!selectedUser && !selectedGroup) {
+      toast.error("Select a user or group first");
+      return;
     }
+
+    await sendMessage({ text: text.trim(), image: imagePreview });
+
+    setText("");
+    removeImage();
   };
 
   return (
@@ -59,8 +59,7 @@ const MessageInput = () => {
             />
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300 flex items-center justify-center"
               type="button"
             >
               <X className="size-3" />
@@ -88,8 +87,7 @@ const MessageInput = () => {
 
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+            className="hidden sm:flex btn btn-circle text-zinc-400"
             onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />
@@ -106,4 +104,5 @@ const MessageInput = () => {
     </div>
   );
 };
+
 export default MessageInput;
